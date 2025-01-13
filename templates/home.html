@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Ticket System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            background-color:hsl(89, 43%, 51%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+
+        .header p {
+            margin: 5px 0 0;
+            font-size: 1.2em;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+        }
+
+        .step {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .step h2 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .step p {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .step a {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color:#008B8B;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .step a:hover {
+            background-color: #0056b3;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .header p {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Welcome to the Smart Ticket System</h1>
+        <p>A seamless and secure way to travel with intelligent fraud detection and loyalty benefits.</p>
+    </div>
+
+    <div class="container">
+        <div class="step">
+            <h2>Step 1: Register Yourself</h2>
+            <p>
+                Start by registering your personal details, including your name, mobile number, Aadhar card, and a recent photo. 
+                This ensures your identity is verified for a seamless experience.
+            </p>
+            <a href="/register">Go to Registration</a>
+        </div>
+
+        <div class="step">
+            <h2>Step 2: Generate Your QR Code</h2>
+            <p>
+                Once registered, you can generate your personalized QR code. This code will be your digital ticket for public transport.
+            </p>
+            <a href="/generate_qr">Generate QR Code</a>
+        </div>
+
+        <div class="step">
+            <h2>Step 3: View and Download Your QR Code</h2>
+            <p>
+                You can view and download your generated QR code for easy access. This allows you to save it for offline use during your travel.
+            </p>
+            <a href="/view_qr">View QR Code</a>
+        </div>
+
+        <div class="step">
+            <h2>Step 4: Face Recognition Verification</h2>
+            <p>
+                For additional security, our system uses face recognition to verify your identity. This ensures no unauthorized usage of your ticket.
+            </p>
+            <a href="/face_recognition">Start Face Recognition</a>
+        </div>
+
+        <div class="step">
+            <h2>Step 5: Scan Your QR Code</h2>
+            <p>
+                Use your QR code at public transport stations to access the service. Our system will scan and verify your code instantly.
+            </p>
+            <a href="/scan_qr">Scan QR Code</a>
+        </div>
+
+       
+
+        
+        </div>
+    </div>
+</body>
+</html>

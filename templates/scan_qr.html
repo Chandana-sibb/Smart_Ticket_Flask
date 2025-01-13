@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Scanner and Fare Calculator</title>
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            padding-top: 60px; /* Adjust this to match the navbar height */
+            background-color: #f4f4f9;
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        nav {
+            background-color: hsl(89, 43%, 51%);
+           
+            padding: 12px 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        nav .container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        nav a {
+            color: white;
+            text-align: center;
+            padding: 12px 20px;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        nav a:hover {
+            background-color: #555;
+            border-radius: 4px;
+        }
+        
+        /* Adjust navbar links for smaller screens */
+        @media (max-width: 768px) {
+            nav .nav-links {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        
+
+        h1 {
+            color: #444;
+        }
+
+        /* Section Styles */
+        .hidden {
+            display: none;
+        }
+
+        .section {
+            width: 90%;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        #qr-reader {
+            width: 100%;
+            height: 300px;
+            border: 1px dashed #444;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+            font-size: 16px;
+        }
+
+        #fare-info {
+            margin-top: 10px;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        #face-recognition-status {
+            font-size: 16px;
+            margin-top: 10px;
+            color: #007bff;
+        }
+
+        /* Form Styles */
+        label {
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        select {
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        /* Button Styles */
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        #check-names-btn, #scan-qr-btn, #save-fare-btn {
+            background-color: #007bff;
+            color: #fff;
+            margin: 10px 0;
+        }
+
+        #check-names-btn:hover, #scan-qr-btn:hover, #save-fare-btn:hover {
+            background-color: #0056b3;
+        }
+
+        #fare-selection button {
+            background-color: #28a745;
+        }
+        #fare-selection button:hover {
+            background-color: #218838;
+        }
+
+        #fare-info {
+            font-size: 18px;
+        }
+
+        /* Error Styles */
+        .error {
+            color: #dc3545;
+        }
+
+       
+
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="/" class="active">Home</a>
+            
+        </div>
+    </nav>
+    <!-- Face Recognition Section -->
+    <button id="check-names-btn">Check if face is recognized</button>
+    <div id="face-recognition-status"></div>
+
+    <!-- QR Scanner Section -->
+    <div id="qr-reader" class="hidden"></div>
+    <button id="scan-qr-btn" class="hidden">Start QR Scan</button>
+
+    <!-- Fare Selection Section -->
+    <div id="fare-selection" class="hidden">
+        <label for="source">Source:</label>
+        <select id="source">
+            <option value="Location1">Location 1</option>
+            <option value="Location2">Location 2</option>
+            <option value="Location3">Location 3</option>
+            <option value="Location4">Location 4</option>
+        </select>
+
+        <label for="destination">Destination:</label>
+        <select id="destination">
+            <option value="Location1">Location 1</option>
+            <option value="Location2">Location 2</option>
+            <option value="Location3">Location 3</option>
+            <option value="Location4">Location 4</option>
+        </select>
+
+        <button id="save-fare-btn">Calculate Fare</button>
+        <div id="fare-info"></div>
+    </div>
+
+    <!-- Trip History Section -->
+    <div id="trip-info" class="hidden"></div>
+
+    <!-- Include QR Code Library -->
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script>
+        let aadhar = ""; // Holds the user's Aadhar number after QR scan
+
+        // Check for recognized names
+        function checkIfNamesExist() {
+            fetch('/recognized_names.txt')
+                .then(response => response.text())
+                .then(data => {
+                    if (data.trim() === "") {
+                        document.getElementById('qr-reader').classList.add('hidden');
+                        displayMessage('face-recognition-status', "No recognized faces found.");
+                    } else {
+                        document.getElementById('qr-reader').classList.remove('hidden');
+                        document.getElementById('scan-qr-btn').classList.remove('hidden');
+                        displayMessage('face-recognition-status', "Faces recognized! Ready for QR scanning.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error reading recognized names file:", error);
+                    displayMessage('face-recognition-status', "Error accessing face recognition data.");
+                });
+        }
+
+        // QR Code Scanner Logic
+        function startQRScanner() {
+            const qrCodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: 250 });
+            qrCodeScanner.render(onScanSuccess, onScanError);
+        }
+
+        function onScanSuccess(decodedText) {
+            console.log(`QR Code detected: ${decodedText}`);
+            aadhar = decodedText;
+
+            fetch(`/get_name_from_qr?qr_data=${encodeURIComponent(decodedText)}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.name) {
+                        displayMessage('face-recognition-status', `Welcome, ${data.name}`);
+                        
+                    } else {
+                        displayMessage('face-recognition-status', "No name found for this QR code.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching name from QR code:", error);
+                    displayMessage('face-recognition-status', "Error accessing the database.");
+                });
+
+            document.getElementById('qr-reader').classList.add('hidden');
+            document.getElementById('fare-selection').classList.remove('hidden');
+        }
+
+        function onScanError(errorMessage) {
+            console.error("QR Scan Error:", errorMessage);
+        }
+
+        // Fare Calculation Logic
+        document.getElementById('save-fare-btn').addEventListener('click', function () {
+            const source = document.getElementById('source').value;
+            const destination = document.getElementById('destination').value;
+
+            if (source === destination) {
+                displayMessage('fare-info', "Source and destination cannot be the same.");
+                return;
+            }
+
+            fetch('/save_trip', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ aadhar, source, destination })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        displayMessage('fare-info', data.error);
+                    } else {
+                        // Build the message with optional reward
+                        let message = `Trip saved! Fare: ₹${data.fare} | New Balance: ₹${data.new_balance}`;
+                        if (data.reward_message) {
+                            message += ` | ${data.reward_message}`;
+                        }
+                        displayMessage('fare-info', message);
+                    }
+                })
+                .catch(error => {
+                    console.error("Error saving trip:", error);
+                    displayMessage('fare-info', "Error saving trip.");
+                });
+            
+        });
+
+        // Helper function to display messages
+        function displayMessage(elementId, message) {
+            document.getElementById(elementId).innerHTML = message;
+        }
+
+        // Event Listeners
+        document.getElementById('check-names-btn').addEventListener('click', checkIfNamesExist);
+        document.getElementById('scan-qr-btn').addEventListener('click', startQRScanner);
+    </script>
+</body>
+</html>

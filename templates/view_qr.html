@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>View QR Code</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        h1 {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .qr-code {
+            width: 250px;
+            height: 250px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+            font-size: 1.1em;
+            margin-top: 10px;
+            display: inline-block;
+            transition: color 0.3s;
+        }
+
+        a:hover {
+            color: #0056b3;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            background-color: #007bff;
+            color: white;
+            font-size: 1em;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 15px;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #0056b3;
+        }
+
+        nav {
+            background-color: hsl(89, 43%, 51%);
+            padding: 14px 20px;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    
+        nav .container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+    
+        nav a {
+            color: white;
+            text-align: center;
+            padding: 12px 20px;
+            text-decoration: none;
+            font-size: 18px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            border-radius: 5px;
+        }
+    
+        /* Hover Effect */
+        nav a:hover {
+            background-color: #2980b9;
+            color: white;
+        }
+    
+        /* Active Link Styling */
+        nav a.active {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+    
+        /* Mobile View Adjustments */
+        @media (max-width: 768px) {
+            nav .container {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+    
+            nav a {
+                padding: 10px 15px;
+                width: 100%;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="/" class="active">Home</a>
+            <a href="/register" class="active">User Registration</a>
+            <a href="/generate_qr" class="active">Generate QR Code</a>
+            <a href="/view_user_details" class="active">User Data</a>
+
+        </div>
+    </nav>
+    
+    <div class="container">
+        <h1>Your QR Code</h1>
+        <img src="data:image/png;base64,{{ qr_code_data }}" alt="Generate Your code to View and Download" class="qr-code"><br><br>
+        <a href="/download_qr/{{ aadhar }}" class="btn">Download QR Code</a>
+    </div>
+</body>
+</html>

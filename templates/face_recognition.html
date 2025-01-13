@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Recognition System</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f4f8;
+        }
+
+        .container {
+            text-align: center;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 90%;
+            transition: transform 0.3s ease;
+        }
+
+        .container:hover {
+            transform: scale(1.05);
+        }
+
+        h1 {
+            color: #2c3e50;
+            font-size: 2.2em;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            font-size: 1.1em;
+            background-color: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px 0;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            width: 100%;
+            max-width: 200px;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn.secondary {
+            background-color: #2ecc71;
+        }
+
+        .btn.secondary:hover {
+            background-color: #27ae60;
+        }
+
+        .webcam-container {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        img {
+            width: 100%;
+            max-width: 640px;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .success-msg {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .error-msg {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.8em;
+            }
+
+            p {
+                font-size: 1em;
+            }
+
+            .btn {
+                font-size: 1em;
+                padding: 10px 15px;
+            }
+
+            img {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav style="background-color: #333; padding: 10px; position: fixed; top: 0; width: 100%; z-index: 1000;margin-left:-40px; ">
+        <div style="display: flex; justify-content: space-around; align-items: center;">
+            <a href="/" style="color: white; text-align: center; padding: 14px 20px; text-decoration: none; font-size: 18px;">Home</a>
+            <a href="/register" style="color: white; text-align: center; padding: 14px 20px; text-decoration: none; font-size: 18px;">User Registration</a>
+        
+        </div>
+    </nav>
+    <div class="container">
+        <h1>Face Recognition System</h1>
+        <p>Click the buttons below to start recognition, view recognized names, and save them.</p>
+
+        <button class="btn" id="start-recognition-btn">Start Recognition</button>
+
+        <div class="webcam-container">
+            <h2>Face Recognition Window</h2>
+            <img src="/start_recognition" alt="Webcam Feed" />
+        </div>
+
+        <button class="btn" id="get-recognized-names-btn">Get Recognized Names</button>
+        <a href="/scan_qr" class="btn secondary">Scan QR Code</a>
+        <button class="btn" id="save-recognized-names-btn">Save Recognized Names</button>
+
+        <div id="info-message" class="info-message"></div>
+    </div>
+
+    <script>
+        let recognitionStarted = false;
+        let faceRecognitionStream = null;
+
+        // Function to start recognition
+        function startRecognition() {
+            if (!recognitionStarted) {
+                recognitionStarted = true;
+                fetch('/start_recognition', { method: 'GET' })
+                    .then(response => response.json())
+                    .then(data => {
+                        document.getElementById('info-message').innerText = data.message || "Recognition started.";
+                        document.getElementById('info-message').classList.add('success-msg');
+
+                        // If the camera feed is available, store the stream
+                        if (data.stream) {
+                            faceRecognitionStream = data.stream;
+                        }
+                    });
+            } else {
+                alert("Recognition is already running.");
+            }
+        }
+
+        // Function to get recognized names from the server
+        function getRecognizedNames() {
+            console.log("Checking for recognized names...");
+
+            fetch('/get_recognized_names')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.match_found) {
+                        document.getElementById('info-message').innerHTML = data.message;
+                        document.getElementById('info-message').classList.add('success-msg');
+                    } else {
+                        document.getElementById('info-message').innerHTML = data.message;
+                        document.getElementById('info-message').classList.add('error-msg');
+                    }
+                })
+                .catch(error => {
+                    console.error("Error fetching recognized names:", error);
+                    document.getElementById('info-message').innerHTML = "An error occurred. Please try again.";
+                    document.getElementById('info-message').classList.add('error-msg');
+                });
+        }
+
+        // Function to save recognized names
+        function saveRecognizedNames() {
+            fetch('/save_recognized_names', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                });
+        }
+
+        // Attach event listeners
+        document.getElementById('start-recognition-btn').addEventListener('click', startRecognition);
+        document.getElementById('get-recognized-names-btn').addEventListener('click', getRecognizedNames);
+        document.getElementById('save-recognized-names-btn').addEventListener('click', saveRecognizedNames);
+    </script>
+</body>
+
+</html> 
